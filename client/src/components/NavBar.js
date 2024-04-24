@@ -1,10 +1,12 @@
 import React from "react";
 import "./style.css";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export default function NavBar() {
-  const handleClick=()=>{
-      console.log("clicked");
-  }
+  const { loginWithRedirect } = useAuth0();
+  const { logout } = useAuth0();
+  const { user, isAuthenticated, isLoading } = useAuth0();
+
   return (
     <>
       <link
@@ -46,23 +48,38 @@ export default function NavBar() {
                 View Hotels
               </a>
             </li>
-            
+            <li className="nav-item">
+              <a className="nav-link" href="/viewprofile">
+                View Profile
+              </a>
+            </li>
           </ul>
           <form className="form-inline my-2 my-lg-0">
-            {/* <input
-              className="form-control mr-sm-2"
-              type="search"
-              placeholder="Search"
-              aria-label="Search"
-            />
-            <button className="btn btn-outline-success my-2 my-sm-0" type="submit">
-              Search
-            </button> */}
-            <button className="btn btn-outline-success my-2 my-sm-0" id="btn1" type="submit">
+            {/* <button className="btn btn-outline-success my-2 my-sm-0" type="submit">
               <a href="/signin">Sign In</a>
-            </button>
-            <button className="btn" id="btn2"><a href="/signup">Sign Up</a></button>
-            <div className="user-logo" id="ulogo"onClick={handleClick}>X</div>
+            </button> */}
+            <li>
+            {
+              isAuthenticated && <p style={{ color: 'black' }}>{user.name}</p>
+            }
+            </li>
+            {!isAuthenticated ? (
+              <li>
+                <button onClick={() => loginWithRedirect()}>Log In</button>;
+              </li>
+            ) : (
+              <li>
+                <button
+                  onClick={() =>
+                    logout({
+                      logoutParams: { returnTo: window.location.origin },
+                    })
+                  }
+                >
+                  Log Out
+                </button>
+              </li>
+            )}
           </form>
         </div>
       </nav>
