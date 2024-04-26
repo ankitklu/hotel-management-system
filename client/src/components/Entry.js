@@ -6,8 +6,6 @@ import 'react-toastify/dist/ReactToastify.css';
 
 export default function Entry() {
 
-    // const notify = () => toast("Wow so easy!");
-
     const [roomType, setRoomType] = useState("");
     const [size, setSize] = useState("");
     const [price, setPrice] = useState("");
@@ -35,35 +33,31 @@ export default function Entry() {
         toast("Room Added successfully");
     }
 
-    // Function to render image based on room type
     function renderRoomImage() {
         if (roomType === "deluxe") {
             return <img src="https://pmcaonline.org/wp-content/uploads/2019/10/hotel-1068x801.jpg" alt="Deluxe Room" style={{ maxWidth: '100%', height: 'auto' }} />;
         } else if (roomType === "non-deluxe") {
             return <img src="https://th.bing.com/th/id/OIP.I9OBthj87ntToaiqIW9ZigAAAA?rs=1&pid=ImgDetMain" alt="Non-Deluxe Room" style={{ maxWidth: '100%', height: 'auto' }} />;
         } else {
-            return null; // You can return a default image or leave it blank if no room type is selected
+            return null;
         }
     }
 
     return (
         <>
-            <link
-                rel="stylesheet"
-                href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
-                integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
-                crossOrigin="anonymous"
-            ></link>
-            <script
-                src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-                integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-                crossOrigin="anonymous"
-            ></script>
-            <script
-                src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
-                integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
-                crossOrigin="anonymous"
-            ></script>
+            <style>
+                {`
+                body {
+                    background-image: url('https://static.vecteezy.com/system/resources/previews/021/103/430/original/transparent-gradient-fade-free-png.png');
+                    background-size: cover;
+                    background-repeat: no-repeat;
+                    background-position: center;
+                }
+                .container {
+                    background-color: transparent;
+                }
+                `}
+            </style>
 
             <div className="container">
                 <div className="image" style={{ maxWidth: '100%', height: 'auto' }}>
