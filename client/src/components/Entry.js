@@ -1,8 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
 import './style.css';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Entry() {
+
+    // const notify = () => toast("Wow so easy!");
+
     const [roomType, setRoomType] = useState("");
     const [size, setSize] = useState("");
     const [price, setPrice] = useState("");
@@ -27,6 +32,7 @@ export default function Entry() {
         }).then((response) => {
             console.log(response.data);
         })
+        toast("Room Added successfully");
     }
 
     // Function to render image based on room type
@@ -85,6 +91,7 @@ export default function Entry() {
                     <p>Vacancy: <input type="number" className="inputbox" value={vacancy} onChange={(e) => setVacancy(e.target.value)} /></p>
                     <p id="description">You are viewing a room. It can accommodate guests. The price is according per night</p>
                     <button className="book-btn" onClick={handleSubmit}>Add Room</button>
+                    <ToastContainer />
                 </div>
             </div>
         </>
