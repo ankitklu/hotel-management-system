@@ -1,11 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./style.css";
 import { useAuth0 } from "@auth0/auth0-react";
 
 export default function NavBar() {
-  const { loginWithRedirect } = useAuth0();
-  const { logout } = useAuth0();
-  const { user, isAuthenticated, isLoading } = useAuth0();
+  // const { loginWithRedirect, logout, user, isAuthenticated } = useAuth0();
+  const { loginWithRedirect, logout, isAuthenticated } = useAuth0();
+
+  useEffect(() => {
+    let timeoutId;
+
+    if (window.location.pathname === "/admin" && isAuthenticated) {
+      // Set timeout to redirect to homepage after 10 minutes
+      timeoutId = setTimeout(() => {
+        window.location.href = "/";
+      }, 10 * 60 * 1000);
+    }
+
+    return () => {
+      clearTimeout(timeoutId); // Clear timeout on component unmount
+    };
+  }, [isAuthenticated]);
 
   return (
     <>
@@ -48,39 +62,30 @@ export default function NavBar() {
                 View Hotels
               </a>
             </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/viewprofile">
-                View Profile
-              </a>
-            </li>
-          </ul>
-          <form className="form-inline my-2 my-lg-0">
-            {/* <button className="btn btn-outline-success my-2 my-sm-0" type="submit">
-              <a href="/signin">Sign In</a>
-            </button> */}
-            <li>
-            {
-              isAuthenticated && <p style={{ color: 'black' }}>{user.name}</p>
-            }
-            </li>
-            {!isAuthenticated ? (
-              <li>
-                <button onClick={() => loginWithRedirect()}>Log In</button>;
-              </li>
-            ) : (
-              <li>
-                <button
-                  onClick={() =>
-                    logout({
-                      logoutParams: { returnTo: window.location.origin },
-                    })
-                  }
-                >
-                  Log Out
-                </button>
+            {isAuthenticated && (
+              <li className="nav-item">
+                <a className="nav-link" href="/viewprofile">
+                  View Profile
+                </a>
               </li>
             )}
+          </ul>
+          {isAuthenticated && (
+              <a href='/admin'><button className="access-btn">View Admin Controls</button></a>
+            )}
+          <form className="form-inline my-2 my-lg-0">
+            {!isAuthenticated ? (
+              <button className="btn btn-outline-success my-2 my-sm-0" onClick={() => loginWithRedirect()}>
+                Log In
+              </button>
+            ) : (
+              <button className="btn btn-outline-danger my-2 my-sm-0" onClick={() => logout({ returnTo: window.location.origin })}>
+                Log Out
+              </button>
+              
+            )}
           </form>
+          
         </div>
       </nav>
     </>
