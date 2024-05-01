@@ -5,21 +5,65 @@ import 'react-toastify/dist/ReactToastify.css';
 
 export default function View() {
   const [result, setResult] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [updatedRoom, setUpdatedRoom] = useState(null);
 
-  function handleDelete(event){
-    axios.delete('http://localhost:8081/delete',{params: {
-      "id": event.currentTarget.getAttribute("roomid"),
-    }}).then((response) => {
+  // Function to handle opening the modal
+  const handleOpenModal = (room) => {
+    setUpdatedRoom(room);
+    setShowModal(true);
+  };
+
+  // Function to handle closing the modal
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setUpdatedRoom(null);
+  };
+
+  // Function to handle updating room details
+  const handleUpdateRoom = async () => {
+    try {
+      const response = await axios.put(`http://localhost:8081/update`, updatedRoom);
       console.log(response.data);
-    })
-    toast("Room Removed successfully");
-  }
+      toast.success("Room updated successfully");
+      setShowModal(false);
+      // Refresh room data after update
+      fetchData();
+    } catch (error) {
+      console.error('Error updating room:', error);
+      toast.error("Failed to update room");
+    }
+  };
 
-  useEffect(() => {
-    axios.get('http://localhost:8081/room').then((response) => {
+  // Function to handle deleting room
+  const handleDelete = async (roomId) => {
+    try {
+      const response = await axios.delete(`http://localhost:8081/delete`, { params: { id: roomId } });
+      console.log(response.data);
+      toast.success("Room removed successfully");
+      // Refresh room data after deletion
+      fetchData();
+    } catch (error) {
+      console.error('Error deleting room:', error);
+      toast.error("Failed to delete room");
+    }
+  };
+
+  // Function to fetch room data
+  const fetchData = async () => {
+    try {
+      const response = await axios.get('http://localhost:8081/room');
       console.log(JSON.stringify(response.data));
       setResult(response.data);
-    });
+    } catch (error) {
+      console.error('Error fetching room data:', error);
+      toast.error("Failed to fetch room data");
+    }
+  };
+
+  // Fetch room data on component mount
+  useEffect(() => {
+    fetchData();
   }, []);
 
   // Object mapping room types to image URLs
@@ -51,6 +95,7 @@ export default function View() {
         {result ? (
           result.map((room) => (
             <div
+              key={room.roomId}
               style={{
                 display: 'flex',
                 justifyContent: 'center',
@@ -63,26 +108,39 @@ export default function View() {
                 <div className="row no-gutters">
                   <div className="col-md-4">
                     <img
-                      src={room.roomType ? roomTypeImages[room.roomType.toLowerCase().replace('-', '_')] : ""}
+                      src={roomTypeImages[room.roomType.toLowerCase().replace('-', '_')]}
                       className="card-img"
                       alt=""
                     />
                   </div>
                   <div className="col-md-8">
                     <div className="card-body">
-                      <h5 className="card-title">{room.roomType ? room.roomType.toUpperCase() : ""}</h5>
+                      <h5 className="card-title">{room.roomType.toUpperCase()}</h5>
                       <h5 className="card-title"><b>Room ID: </b>{room.roomId}</h5>
                       <h5 className="card-title"><b>Price:</b> {room.price} INR</h5>
-                      <h5 className="card-title"><b>Vacancy: </b>{room.vacancy}</h5>
+                      <h5 className="card-title"><b>Vacancy: </b>{room.vacancy.toString()}</h5>
                       <p className="card-text">
                         The room you are viewing can be accommodated by{' '}
                         {room.size} persons
                       </p>
                     </div>
-                    <button type="button" id="" class="btn btn-dark" style={{marginLeft:'7rem', marginBottom:'1rem'}}
-                      onClick={handleDelete} roomid={room.roomId}
-                    >Remove</button>
-                    <ToastContainer/>
+                    <button
+                      type="button"
+                      className="btn btn-dark"
+                      style={{ marginLeft: '7rem', marginBottom: '1rem' }}
+                      onClick={() => handleDelete(room.roomId)}
+                    >
+                      Remove
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-dark"
+                      style={{ marginLeft: '7rem', marginBottom: '1rem' }}
+                      onClick={() => handleOpenModal(room)}
+                    >
+                      Update
+                    </button>
+                    <ToastContainer />
                   </div>
                 </div>
               </div>
@@ -92,6 +150,74 @@ export default function View() {
           <div>There is no data to display...</div>
         )}
       </div>
+
+      {/* Modal for updating room */}
+      {updatedRoom && (
+        <div className="modal" style={{ display: showModal ? 'block' : 'none', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Update Room</h5>
+                <button type="button" className="close" onClick={handleCloseModal}>
+                  <span>&times;</span>
+                </button>
+              </div>
+              <div className="modal-body">
+                <form>
+                  <div className="form-group">
+                    <label htmlFor="roomId">Room ID</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="roomId"
+                      value={updatedRoom.roomId}
+                      readOnly
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="price">Price</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      id="price"
+                      value={updatedRoom.price}
+                      onChange={(e) => setUpdatedRoom({ ...updatedRoom, price: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="vacancy">Vacancy</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="vacancy"
+                      value={updatedRoom.vacancy.toString()}
+                      onChange={(e) => setUpdatedRoom({ ...updatedRoom, vacancy: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="size">Size</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      id="size"
+                      value={updatedRoom.size}
+                      onChange={(e) => setUpdatedRoom({ ...updatedRoom, size: e.target.value })}
+                    />
+                  </div>
+                </form>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>
+                  Close
+                </button>
+                <button type="button" className="btn btn-primary" onClick={handleUpdateRoom}>
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
