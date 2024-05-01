@@ -2,6 +2,8 @@ const express= require('express');
 const cors= require('cors');
 const {MongoClient} = require('mongodb');
 const bcrypt= require('bcrypt');
+const { ObjectId } = require('mongodb');
+
 
 
 //create object for express
@@ -29,7 +31,7 @@ const col3= db.collection("bookings");
 // localhost:8081/home
 //1st param is address and 2nd is service function
 app.get('/home',(req,res)=>{
-    res.send("It is a Hoem page");
+    res.send("It is a Home page");
 })
 
 //1st param is address adn 2nd is service
@@ -86,20 +88,80 @@ app.post('/entry',(req,res)=>{
     res.send("Successfully added");
 })
 
-// app.put('/entry',async(req,res)=>{
-//     console.log(req.body);
-//     var doc={
-//         $set: {
-//             roomType:req.body.roomType,
-//             size:req.body.size,
-//             price:req.body.price,
-//             vacancy:req.body.vacancy,
-//             image:req.body.image
+
+app.put('/update', async (req, res) => {
+    try {
+        console.log(req.body); // Step 1: Log request body
+
+        // Step 2: No need to parse if roomId is already a string
+        const newRoomId = req.body.roomId;
+
+        // Step 3: Constructing Update Document
+        var doc = {
+            $set: {
+                roomType: req.body.roomType,
+                size: req.body.size,
+                price: req.body.price,
+                vacancy: req.body.vacancy
+            }
+        };
+
+        console.log("Update document:", doc); // Log the update document
+
+        // Step 4: Update document in MongoDB
+        const result = await col2.updateOne({ roomId: newRoomId }, doc);
+
+        console.log("Update result:", result); // Log the update result
+
+        // Step 5: Check update result
+        if (result.matchedCount === 1) { // Ensure document is found before checking modifications
+            if (result.modifiedCount === 1) {
+                console.log("Document updated successfully");
+                res.send("Update successfully");
+            } else {
+                console.log("No modifications made");
+                res.send("No modifications made");
+            }
+        } else {
+            console.log("Document not found");
+            res.status(404).send("Document not found");
+        }
+    } catch (error) {
+        // Step 7: Error handling
+        console.error("Error updating document:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+
+
+
+
+
+// Update room details
+// Update room details
+// const { ObjectId } = require('mongodb');
+
+// app.put('/update/:roomId', async (req, res) => {
+//     const roomId = req.params.roomId;
+//     const updatedRoomDetails = req.body;
+    
+//     try {
+//         const result = await col2.updateOne({ _id: ObjectId(roomId) }, { $set: updatedRoomDetails });
+//         if (result.modifiedCount === 1) {
+//             res.send("Room updated successfully");
+//         } else {
+//             res.status(404).send("Room not found");
 //         }
+//     } catch (error) {
+//         console.error('Error updating room:', error);
+//         res.status(500).send("Failed to update room");
 //     }
-//     await col2.updateOne({sid: req.body.roomId},doc)
-//     res.send("Update successfully");
-// })
+// });
+
+
+
+ 
 
 app.delete('/delete',async (req,res)=>{
     await col2.deleteOne({roomId:req.query.id})
